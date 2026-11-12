@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^setup-workstation\\.sh$/"],
+      "matchStrings": [
+        ":=(?<currentValue>[^}]+)\\}\"\\s*# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDepNames": ["helm/helm"],
+      "allowedVersions": "/^v?4\\./"
+    },
+    {
+      "matchDepNames": ["cloudflare/cloudflare-go"],
+      "allowedVersions": "<1.0.0"
+    }
+  ]
+}
