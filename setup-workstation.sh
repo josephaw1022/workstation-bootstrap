@@ -25,8 +25,10 @@ export PATH="$BIN_DIR:$PATH"
 : "${HELM_VERSION:=v4.2.3}" # renovate: datasource=github-releases depName=helm/helm
 : "${JIRA_CLI_VERSION:=1.7.0}" # renovate: datasource=github-releases depName=ankitpokhrel/jira-cli
 : "${K9S_VERSION:=0.51.0}" # renovate: datasource=github-releases depName=derailed/k9s
+: "${ISTIOCTL_VERSION:=1.32.0}" # renovate: datasource=github-releases depName=istio/istio
 : "${KARGO_VERSION:=1.12.5}" # renovate: datasource=github-releases depName=akuity/kargo
 : "${KIND_VERSION:=0.33.0}" # renovate: datasource=github-releases depName=kubernetes-sigs/kind
+: "${KUBECOLOR_VERSION:=0.8.0}" # renovate: datasource=github-releases depName=kubecolor/kubecolor
 : "${KUBECTL_VERSION:=v1.37.1}" # renovate: datasource=github-releases depName=kubernetes/kubernetes
 : "${KUBECTX_VERSION:=0.11.0}" # renovate: datasource=github-releases depName=ahmetb/kubectx
 : "${KYVERNO_CLI_VERSION:=v1.19.0}" # renovate: datasource=github-releases depName=kyverno/kyverno
@@ -50,10 +52,11 @@ declare -A PIN=(
   [kargo-cli]=$KARGO_VERSION [kind]=$KIND_VERSION [kubectl]=$KUBECTL_VERSION [kubectx]=$KUBECTX_VERSION
   [kyverno-cli]=$KYVERNO_CLI_VERSION [netbird]=$NETBIRD_VERSION [nvm]=$NVM_VERSION [oras]=$ORAS_VERSION
   [pup-cli]=$PUP_VERSION [stern]=$STERN_VERSION [task]=$TASK_VERSION [tflint]=$TFLINT_VERSION
+  [istioctl]=$ISTIOCTL_VERSION [kubecolor]=$KUBECOLOR_VERSION
   [vault]=$VAULT_VERSION [yamllint]=$YAMLLINT_VERSION [yq]=$YQ_VERSION
 )
 
-TOOLS_DEFAULT="base pip3 jq gh aws-cli azure-cli golang nvm gh-copilot-cli cf-cli kubectl helm helm-unittest k9s kind kubectx stern yq task argocd tflint vault actionlint aks-node-viewer eks-node-viewer check-jsonschema yamllint claws flarectl helmper jira-cli kargo-cli kyverno-cli netbird oras psql pup-cli slack-cli valkey-cli"
+TOOLS_DEFAULT="base pip3 jq gh aws-cli azure-cli golang nvm gh-copilot-cli cf-cli kubectl helm helm-unittest k9s kind kubectx kubecolor istioctl stern yq task argocd tflint vault actionlint aks-node-viewer eks-node-viewer check-jsonschema yamllint claws flarectl helmper jira-cli kargo-cli kyverno-cli netbird oras psql pup-cli slack-cli valkey-cli"
 TOOLS="${*:-$TOOLS_DEFAULT}"
 
 os="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -100,6 +103,8 @@ ver_k9s()      { k9s version --short 2>/dev/null | grep -o '[0-9][0-9.]*' | head
 ver_kind()     { kind version 2>/dev/null | awk '{print $2}'; }
 ver_kubectx()  { have kubens && marker kubectx; }
 ver_stern()    { stern --version 2>/dev/null | grep -o 'version: [0-9][0-9.]*' | grep -o '[0-9][0-9.]*' | head -n1; }
+ver_istioctl() { istioctl version --remote=false 2>/dev/null | grep -o '[0-9][0-9.]*' | head -n1; }
+ver_kubecolor() { kubecolor --kubecolor-version 2>/dev/null | grep -o '[0-9][0-9.]*' | head -n1; }
 ver_yq()       { yq --version 2>/dev/null | grep -o '[0-9][0-9.]*' | head -n1; }
 ver_task()     { task --version 2>/dev/null | grep -o '[0-9][0-9.]*' | head -n1; }
 ver_argocd()   { argocd version --client 2>/dev/null | grep -m1 'argocd:' | awk '{print $2}' | cut -d'+' -f1; }
@@ -196,6 +201,8 @@ install_kubectx() {
   done
 }
 install_stern()   { fetch_tar "https://github.com/stern/stern/releases/download/v${STERN_VERSION}/stern_${STERN_VERSION}_${os}_${arch}.tar.gz" stern stern; }
+install_istioctl() { fetch_tar "https://github.com/istio/istio/releases/download/${ISTIOCTL_VERSION}/istioctl-${ISTIOCTL_VERSION}-${os}-${arch}.tar.gz" istioctl istioctl; }
+install_kubecolor() { fetch_tar "https://github.com/kubecolor/kubecolor/releases/download/v${KUBECOLOR_VERSION}/kubecolor_${KUBECOLOR_VERSION}_${os}_${arch}.tar.gz" kubecolor kubecolor; }
 install_yq()      { fetch_bin "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_${os}_${arch}" yq; }
 install_task()    { curl -fsSL https://taskfile.dev/install.sh | sh -s -- -d -b "$BIN_DIR" "$TASK_VERSION"; }
 install_argocd()  { fetch_bin "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-${os}-${arch}" argocd; }
